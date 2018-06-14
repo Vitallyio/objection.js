@@ -1,9 +1,9 @@
-var Model = require('../../../../').Model;
+const Model = require('../../../../').Model;
 
-function JoinModel() {
-  Model.apply(this, arguments);
+class JoinModel extends Model {
+  static get tableName() {
+    return this.name;
+  }
 }
 
-module.exports = Model.extend(JoinModel);
-
-JoinModel.tableName = 'JoinModel';
+module.exports = JoinModel;

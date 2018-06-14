@@ -3,8 +3,19 @@ import Person from './Person';
 import { join } from 'path';
 
 export default class Animal extends Model {
+  // prettier-ignore
+  readonly id!: number;
+  ownerId?: number;
+  // prettier-ignore
+  name!: string;
+  // prettier-ignore
+  species!: string;
+
+  // Optional eager relations.
+  owner?: Person;
+
   // Table name is the only required property.
-  static tableName = 'Animal';
+  static tableName = 'animals';
 
   // Optional JSON schema. This is not the database schema! Nothing is generated
   // based on this. This is only used for validation. Whenever a model instance
@@ -30,14 +41,9 @@ export default class Animal extends Model {
       // here to prevent require loops.
       modelClass: join(__dirname, 'Person'),
       join: {
-        from: 'Animal.ownerId',
-        to: 'Person.id'
+        from: 'animals.ownerId',
+        to: 'persons.id'
       }
     }
   };
-
-  readonly id: number;
-  owner: Person;
-  name: string;
-  species: string;
 }

@@ -7,36 +7,36 @@ const Movie = require('./Movie');
 class Person extends Model {
   // Table name is the only required property.
   static get tableName() {
-    return 'Person';
+    return 'persons';
   }
 
   // Optional JSON schema. This is not the database schema! Nothing is generated
   // based on this. This is only used for validation. Whenever a model instance
   // is created it is checked against this schema. http://json-schema.org/.
-  static get jsonSchema () {
+  static get jsonSchema() {
     return {
       type: 'object',
       required: ['firstName', 'lastName'],
 
       properties: {
-        id: {type: 'integer'},
-        parentId: {type: ['integer', 'null']},
-        firstName: {type: 'string', minLength: 1, maxLength: 255},
-        lastName: {type: 'string', minLength: 1, maxLength: 255},
-        age: {type: 'number'},
+        id: { type: 'integer' },
+        parentId: { type: ['integer', 'null'] },
+        firstName: { type: 'string', minLength: 1, maxLength: 255 },
+        lastName: { type: 'string', minLength: 1, maxLength: 255 },
+        age: { type: 'number' },
 
         address: {
           type: 'object',
           properties: {
-            street: {type: 'string'},
-            city: {type: 'string'},
-            zipCode: {type: 'string'}
+            street: { type: 'string' },
+            city: { type: 'string' },
+            zipCode: { type: 'string' }
           }
         }
       }
     };
   }
-  
+
   // This object defines the relations to other models.
   static get relationMappings() {
     return {
@@ -46,8 +46,8 @@ class Person extends Model {
         // absolute file path to a module that exports one.
         modelClass: Animal,
         join: {
-          from: 'Person.id',
-          to: 'Animal.ownerId'
+          from: 'persons.id',
+          to: 'animals.ownerId'
         }
       },
 
@@ -55,13 +55,13 @@ class Person extends Model {
         relation: Model.ManyToManyRelation,
         modelClass: Movie,
         join: {
-          from: 'Person.id',
+          from: 'persons.id',
           // ManyToMany relation needs the `through` object to describe the join table.
           through: {
-            from: 'Person_Movie.personId',
-            to: 'Person_Movie.movieId'
+            from: 'persons_movies.personId',
+            to: 'persons_movies.movieId'
           },
-          to: 'Movie.id'
+          to: 'movies.id'
         }
       },
 
@@ -69,8 +69,17 @@ class Person extends Model {
         relation: Model.HasManyRelation,
         modelClass: Person,
         join: {
-          from: 'Person.id',
-          to: 'Person.parentId'
+          from: 'persons.id',
+          to: 'persons.parentId'
+        }
+      },
+
+      parent: {
+        relation: Model.BelongsToOneRelation,
+        modelClass: Person,
+        join: {
+          from: 'persons.parentId',
+          to: 'persons.id'
         }
       }
     };

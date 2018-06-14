@@ -1,28 +1,36 @@
-'use strict';
+const expect = require('expect.js');
+const { ValidationError, RelationExpression } = require('../../../');
 
-var expect = require('expect.js')
-  , ValidationError = require('../../../').ValidationError
-  , RelationExpression = require('../../../').RelationExpression;
-
-describe('RelationExpression', function () {
-
-  describe('parse', function () {
-
-    it('empty string', function () {
+describe('RelationExpression', () => {
+  describe('parse', () => {
+    it('empty expression', () => {
       testParse('', {
-        name: null,
-        args: [],
-        numChildren: 0,
-        children: {}
+        $name: null,
+        $relation: null,
+        $modify: [],
+        $recursive: false,
+        $allRecursive: false
       });
+
+      testParse(
+        {},
+        {
+          $name: null,
+          $relation: null,
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false
+        }
+      );
     });
 
-    it('non-string', function () {
-      var expectedResult = {
-        name: null,
-        args: [],
-        numChildren: 0,
-        children: {}
+    it('non-string', () => {
+      let expectedResult = {
+        $name: null,
+        $relation: null,
+        $modify: [],
+        $recursive: false,
+        $allRecursive: false
       };
 
       testParse(null, expectedResult);
@@ -33,330 +41,800 @@ describe('RelationExpression', function () {
       testParse([], expectedResult);
     });
 
-    describe('single relation', function () {
-
-      it('single relation', function () {
+    describe('single relation', () => {
+      it('single relation', () => {
         testParse('a', {
-          name: null,
-          args: [],
-          numChildren: 1,
-          children: {
-            a: {
-              name: 'a',
-              args: [],
-              numChildren: 0,
-              children: {}
-            }
+          $name: null,
+          $relation: null,
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false,
+
+          a: {
+            $name: 'a',
+            $relation: 'a',
+            $modify: [],
+            $recursive: false,
+            $allRecursive: false
           }
         });
+
+        testParse(
+          {
+            a: {}
+          },
+          {
+            $name: null,
+            $relation: null,
+            $modify: [],
+            $recursive: false,
+            $allRecursive: false,
+
+            a: {
+              $name: 'a',
+              $relation: 'a',
+              $modify: [],
+              $recursive: false,
+              $allRecursive: false
+            }
+          }
+        );
       });
 
-      it('list with one value', function () {
+      it('list with one value', () => {
         testParse('[a]', {
-          name: null,
-          args: [],
-          numChildren: 1,
-          children: {
-            a: {
-              name: 'a',
-              args: [],
-              numChildren: 0,
-              children: {}
-            }
+          $name: null,
+          $relation: null,
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false,
+
+          a: {
+            $name: 'a',
+            $relation: 'a',
+            $modify: [],
+            $recursive: false,
+            $allRecursive: false
           }
         });
       });
 
-      it('weird characters', function () {
+      it('weird characters', () => {
         testParse('_-%§$?+1Aa!€^', {
-          name: null,
-          args: [],
-          numChildren: 1,
-          children: {
-            "_-%§$?+1Aa!€^": {
-              name: '_-%§$?+1Aa!€^',
-              args: [],
-              numChildren: 0,
-              children: {}
-            }
+          $name: null,
+          $relation: null,
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false,
+
+          '_-%§$?+1Aa!€^': {
+            $name: '_-%§$?+1Aa!€^',
+            $relation: '_-%§$?+1Aa!€^',
+            $modify: [],
+            $recursive: false,
+            $allRecursive: false
           }
         });
       });
-
     });
 
-    describe('nested relations', function () {
-
-      it('one level', function () {
+    describe('nested relations', () => {
+      it('one level', () => {
         testParse('a.b', {
-          name: null,
-          args: [],
-          numChildren: 1,
-          children: {
-            a: {
-              name: 'a',
-              args: [],
-              numChildren: 1,
-              children: {
-                b: {
-                  name: 'b',
-                  args: [],
-                  numChildren: 0,
-                  children: {}
-                }
-              }
+          $name: null,
+          $relation: null,
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false,
+
+          a: {
+            $name: 'a',
+            $relation: 'a',
+            $modify: [],
+            $recursive: false,
+            $allRecursive: false,
+
+            b: {
+              $name: 'b',
+              $relation: 'b',
+              $modify: [],
+              $recursive: false,
+              $allRecursive: false
             }
           }
         });
       });
 
-      it('two levels', function () {
+      it('two levels', () => {
         testParse('a.b.c', {
-          name: null,
-          args: [],
-          numChildren: 1,
-          children: {
-            a: {
-              name: 'a',
-              args: [],
-              numChildren: 1,
-              children: {
-                b: {
-                  name: 'b',
-                  args: [],
-                  numChildren: 1,
-                  children: {
-                    c: {
-                      name: 'c',
-                      args: [],
-                      numChildren: 0,
-                      children: {}
-                    }
-                  }
-                }
+          $name: null,
+          $relation: null,
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false,
+
+          a: {
+            $name: 'a',
+            $relation: 'a',
+            $modify: [],
+            $recursive: false,
+            $allRecursive: false,
+
+            b: {
+              $name: 'b',
+              $relation: 'b',
+              $modify: [],
+              $recursive: false,
+              $allRecursive: false,
+
+              c: {
+                $name: 'c',
+                $relation: 'c',
+                $modify: [],
+                $recursive: false,
+                $allRecursive: false
               }
             }
           }
         });
-      });
 
+        testParse(
+          {
+            a: {
+              b: {
+                c: {}
+              }
+            }
+          },
+          {
+            $name: null,
+            $relation: null,
+            $modify: [],
+            $recursive: false,
+            $allRecursive: false,
+
+            a: {
+              $name: 'a',
+              $relation: 'a',
+              $modify: [],
+              $recursive: false,
+              $allRecursive: false,
+
+              b: {
+                $name: 'b',
+                $relation: 'b',
+                $modify: [],
+                $recursive: false,
+                $allRecursive: false,
+
+                c: {
+                  $name: 'c',
+                  $relation: 'c',
+                  $modify: [],
+                  $recursive: false,
+                  $allRecursive: false
+                }
+              }
+            }
+          }
+        );
+      });
     });
 
-    it('multiple relations', function () {
+    it('multiple relations', () => {
       testParse('[a, b, c]', {
-        name: null,
-        args: [],
-        numChildren: 3,
-        children: {
-          a: {
-            name: 'a',
-            args: [],
-            numChildren: 0,
-            children: {}
-          },
-          b: {
-            name: 'b',
-            args: [],
-            numChildren: 0,
-            children: {}
-          },
-          c: {
-            name: 'c',
-            args: [],
-            numChildren: 0,
-            children: {}
-          }
+        $name: null,
+        $relation: null,
+        $modify: [],
+        $recursive: false,
+        $allRecursive: false,
+
+        a: {
+          $name: 'a',
+          $relation: 'a',
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false
+        },
+
+        b: {
+          $name: 'b',
+          $relation: 'b',
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false
+        },
+
+        c: {
+          $name: 'c',
+          $relation: 'c',
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false
         }
       });
+
+      testParse(
+        {
+          a: true,
+          b: {},
+          c: true
+        },
+        {
+          $name: null,
+          $relation: null,
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false,
+
+          a: {
+            $name: 'a',
+            $relation: 'a',
+            $modify: [],
+            $recursive: false,
+            $allRecursive: false
+          },
+
+          b: {
+            $name: 'b',
+            $relation: 'b',
+            $modify: [],
+            $recursive: false,
+            $allRecursive: false
+          },
+
+          c: {
+            $name: 'c',
+            $relation: 'c',
+            $modify: [],
+            $recursive: false,
+            $allRecursive: false
+          }
+        }
+      );
     });
 
-    it('multiple nested relations', function () {
+    it('multiple nested relations', () => {
       testParse('[a.b, c.d.e, f]', {
-        name: null,
-        args: [],
-        numChildren: 3,
-        children: {
-          a: {
-            name: 'a',
-            args: [],
-            numChildren: 1,
-            children: {
-              b: {
-                name: 'b',
-                args: [],
-                numChildren: 0,
-                children: {}
-              }
+        $name: null,
+        $relation: null,
+        $modify: [],
+        $recursive: false,
+        $allRecursive: false,
+
+        a: {
+          $name: 'a',
+          $relation: 'a',
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false,
+
+          b: {
+            $name: 'b',
+            $relation: 'b',
+            $modify: [],
+            $recursive: false,
+            $allRecursive: false
+          }
+        },
+
+        c: {
+          $name: 'c',
+          $relation: 'c',
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false,
+
+          d: {
+            $name: 'd',
+            $relation: 'd',
+            $modify: [],
+            $recursive: false,
+            $allRecursive: false,
+
+            e: {
+              $name: 'e',
+              $relation: 'e',
+              $modify: [],
+              $recursive: false,
+              $allRecursive: false
             }
+          }
+        },
+
+        f: {
+          $name: 'f',
+          $relation: 'f',
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false
+        }
+      });
+
+      testParse(
+        {
+          a: {
+            b: true
           },
+
           c: {
-            name: 'c',
-            args: [],
-            numChildren: 1,
-            children: {
-              d: {
-                name: 'd',
-                args: [],
-                numChildren: 1,
-                children: {
-                  e: {
-                    name: 'e',
-                    args: [],
-                    numChildren: 0,
-                    children: {}
-                  }
-                }
+            d: {
+              e: {}
+            }
+          },
+
+          f: {}
+        },
+        {
+          $name: null,
+          $relation: null,
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false,
+
+          a: {
+            $name: 'a',
+            $relation: 'a',
+            $modify: [],
+            $recursive: false,
+            $allRecursive: false,
+
+            b: {
+              $name: 'b',
+              $relation: 'b',
+              $modify: [],
+              $recursive: false,
+              $allRecursive: false
+            }
+          },
+
+          c: {
+            $name: 'c',
+            $relation: 'c',
+            $modify: [],
+            $recursive: false,
+            $allRecursive: false,
+
+            d: {
+              $name: 'd',
+              $relation: 'd',
+              $modify: [],
+              $recursive: false,
+              $allRecursive: false,
+
+              e: {
+                $name: 'e',
+                $relation: 'e',
+                $modify: [],
+                $recursive: false,
+                $allRecursive: false
               }
             }
           },
+
           f: {
-            name: 'f',
-            args: [],
-            numChildren: 0,
-            children: {}
+            $name: 'f',
+            $relation: 'f',
+            $modify: [],
+            $recursive: false,
+            $allRecursive: false
           }
         }
-      });
+      );
     });
 
-    it('deep nesting and nested lists', function () {
+    it('deep nesting and nested lists', () => {
       testParse('[a.[b, c.[d, e.f]], g]', {
-        name: null,
-        args: [],
-        numChildren: 2,
-        children: {
-          a: {
-            name: 'a',
-            args: [],
-            numChildren: 2,
-            children: {
-              b: {
-                name: 'b',
-                args: [],
-                numChildren: 0,
-                children: []
-              },
-              c: {
-                name: 'c',
-                args: [],
-                numChildren: 2,
-                children: {
-                  d: {
-                    name: 'd',
-                    args: [],
-                    numChildren: 0,
-                    children: []
-                  },
-                  e: {
-                    name: 'e',
-                    args: [],
-                    numChildren: 1,
-                    children: {
-                      f: {
-                        name: 'f',
-                        args: [],
-                        numChildren: 0,
-                        children: {}
-                      }
-                    }
-                  }
-                }
+        $name: null,
+        $relation: null,
+        $modify: [],
+        $recursive: false,
+        $allRecursive: false,
+
+        a: {
+          $name: 'a',
+          $relation: 'a',
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false,
+
+          b: {
+            $name: 'b',
+            $relation: 'b',
+            $modify: [],
+            $recursive: false,
+            $allRecursive: false
+          },
+
+          c: {
+            $name: 'c',
+            $relation: 'c',
+            $modify: [],
+            $recursive: false,
+            $allRecursive: false,
+
+            d: {
+              $name: 'd',
+              $relation: 'd',
+              $modify: [],
+              $recursive: false,
+              $allRecursive: false
+            },
+            e: {
+              $name: 'e',
+              $relation: 'e',
+              $modify: [],
+              $recursive: false,
+              $allRecursive: false,
+
+              f: {
+                $name: 'f',
+                $relation: 'f',
+                $modify: [],
+                $recursive: false,
+                $allRecursive: false
               }
             }
-          },
-          g: {
-            name: 'g',
-            args: [],
-            numChildren: 0,
-            children: {}
           }
+        },
+
+        g: {
+          $name: 'g',
+          $relation: 'g',
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false
         }
       });
     });
 
-    it('arguments', function () {
+    it('arguments', () => {
       testParse('[a(arg1,arg2,arg3), b(arg4) . [c(), d(arg5 arg6), e]]', {
-        name: null,
-        args: [],
-        numChildren: 2,
-        children: {
-          a: {
-            name: 'a',
-            args: ['arg1', 'arg2', 'arg3'],
-            numChildren: 0,
-            children: {}
+        $name: null,
+        $relation: null,
+        $modify: [],
+        $recursive: false,
+        $allRecursive: false,
+
+        a: {
+          $name: 'a',
+          $relation: 'a',
+          $modify: ['arg1', 'arg2', 'arg3'],
+          $recursive: false,
+          $allRecursive: false
+        },
+
+        b: {
+          $name: 'b',
+          $relation: 'b',
+          $modify: ['arg4'],
+          $recursive: false,
+          $allRecursive: false,
+
+          c: {
+            $name: 'c',
+            $relation: 'c',
+            $modify: [],
+            $recursive: false,
+            $allRecursive: false
           },
+
+          d: {
+            $name: 'd',
+            $relation: 'd',
+            $modify: ['arg5', 'arg6'],
+            $recursive: false,
+            $allRecursive: false
+          },
+
+          e: {
+            $name: 'e',
+            $relation: 'e',
+            $modify: [],
+            $recursive: false,
+            $allRecursive: false
+          }
+        }
+      });
+
+      testParse(
+        {
+          a: {
+            $modify: ['arg1', 'arg2', 'arg3']
+          },
+
           b: {
-            name: 'b',
-            args: ['arg4'],
-            numChildren: 3,
-            children: {
-              c: {
-                name: 'c',
-                args: [],
-                numChildren: 0,
-                children: {}
-              },
-              d: {
-                name: 'd',
-                args: ['arg5', 'arg6'],
-                numChildren: 0,
-                children: {}
-              },
+            $modify: ['arg4'],
+
+            c: true,
+
+            d: {
+              $modify: ['arg5', 'arg6']
+            },
+
+            e: {}
+          }
+        },
+        {
+          $name: null,
+          $relation: null,
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false,
+
+          a: {
+            $name: 'a',
+            $relation: 'a',
+            $modify: ['arg1', 'arg2', 'arg3'],
+            $recursive: false,
+            $allRecursive: false
+          },
+
+          b: {
+            $name: 'b',
+            $relation: 'b',
+            $modify: ['arg4'],
+            $recursive: false,
+            $allRecursive: false,
+
+            c: {
+              $name: 'c',
+              $relation: 'c',
+              $modify: [],
+              $recursive: false,
+              $allRecursive: false
+            },
+
+            d: {
+              $name: 'd',
+              $relation: 'd',
+              $modify: ['arg5', 'arg6'],
+              $recursive: false,
+              $allRecursive: false
+            },
+
+            e: {
+              $name: 'e',
+              $relation: 'e',
+              $modify: [],
+              $recursive: false,
+              $allRecursive: false
+            }
+          }
+        }
+      );
+    });
+
+    it('alias', () => {
+      testParse('a as b', {
+        $name: null,
+        $relation: null,
+        $modify: [],
+        $recursive: false,
+        $allRecursive: false,
+
+        b: {
+          $name: 'b',
+          $relation: 'a',
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false
+        }
+      });
+
+      testParse(
+        {
+          b: {
+            $relation: 'a'
+          }
+        },
+        {
+          $name: null,
+          $relation: null,
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false,
+
+          b: {
+            $name: 'b',
+            $relation: 'a',
+            $modify: [],
+            $recursive: false,
+            $allRecursive: false
+          }
+        }
+      );
+
+      testParse('aasb', {
+        $name: null,
+        $relation: null,
+        $modify: [],
+        $recursive: false,
+        $allRecursive: false,
+
+        aasb: {
+          $name: 'aasb',
+          $relation: 'aasb',
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false
+        }
+      });
+
+      testParse('[  as , b]', {
+        $name: null,
+        $relation: null,
+        $modify: [],
+        $recursive: false,
+        $allRecursive: false,
+
+        as: {
+          $name: 'as',
+          $relation: 'as',
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false
+        },
+
+        b: {
+          $name: 'b',
+          $relation: 'b',
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false
+        }
+      });
+
+      testParse(
+        `a as aa.[
+        b as bb,
+        c as cc
+      ]`,
+        {
+          $name: null,
+          $relation: null,
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false,
+
+          aa: {
+            $name: 'aa',
+            $relation: 'a',
+            $modify: [],
+            $recursive: false,
+            $allRecursive: false,
+
+            bb: {
+              $name: 'bb',
+              $relation: 'b',
+              $modify: [],
+              $recursive: false,
+              $allRecursive: false
+            },
+
+            cc: {
+              $name: 'cc',
+              $relation: 'c',
+              $modify: [],
+              $recursive: false,
+              $allRecursive: false
+            }
+          }
+        }
+      );
+
+      testParse(
+        `a(f1, f2) as aa . [
+        c(f3, f4) as cc,
+        b as bb .[
+          e,
+          f as ff
+        ]
+      ]`,
+        {
+          $name: null,
+          $relation: null,
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false,
+
+          aa: {
+            $name: 'aa',
+            $relation: 'a',
+            $modify: ['f1', 'f2'],
+            $recursive: false,
+            $allRecursive: false,
+
+            cc: {
+              $name: 'cc',
+              $relation: 'c',
+              $modify: ['f3', 'f4'],
+              $recursive: false,
+              $allRecursive: false
+            },
+
+            bb: {
+              $name: 'bb',
+              $relation: 'b',
+              $modify: [],
+              $recursive: false,
+              $allRecursive: false,
+
               e: {
-                name: 'e',
-                args: [],
-                numChildren: 0,
-                children: {}
+                $name: 'e',
+                $relation: 'e',
+                $modify: [],
+                $recursive: false,
+                $allRecursive: false
+              },
+
+              ff: {
+                $name: 'ff',
+                $relation: 'f',
+                $modify: [],
+                $recursive: false,
+                $allRecursive: false
               }
             }
           }
         }
-      });
+      );
     });
 
-    it('should ignore whitespace', function () {
-      testParse('\n\r\t  [ a (\narg1\n  arg2,arg3), \n \n b\n(arg4) . [c(), \td (arg5 arg6), e] \r] ', {
-        name: null,
-        args: [],
-        numChildren: 2,
-        children: {
+    it('should ignore whitespace', () => {
+      testParse(
+        '\n\r\t  [ a (\narg1\n  arg2,arg3), \n \n b\n(arg4) . [c(), \td (arg5 arg6), e] \r] ',
+        {
+          $name: null,
+          $relation: null,
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false,
+
           a: {
-            name: 'a',
-            args: ['arg1', 'arg2', 'arg3'],
-            numChildren: 0,
-            children: {}
+            $name: 'a',
+            $relation: 'a',
+            $modify: ['arg1', 'arg2', 'arg3'],
+            $recursive: false,
+            $allRecursive: false
           },
+
           b: {
-            name: 'b',
-            args: ['arg4'],
-            numChildren: 3,
-            children: {
-              c: {
-                name: 'c',
-                args: [],
-                numChildren: 0,
-                children: {}
-              },
-              d: {
-                name: 'd',
-                args: ['arg5', 'arg6'],
-                numChildren: 0,
-                children: {}
-              },
-              e: {
-                name: 'e',
-                args: [],
-                numChildren: 0,
-                children: {}
-              }
+            $name: 'b',
+            $relation: 'b',
+            $modify: ['arg4'],
+            $recursive: false,
+            $allRecursive: false,
+
+            c: {
+              $name: 'c',
+              $relation: 'c',
+              $modify: [],
+              $recursive: false,
+              $allRecursive: false
+            },
+
+            d: {
+              $name: 'd',
+              $relation: 'd',
+              $modify: ['arg5', 'arg6'],
+              $recursive: false,
+              $allRecursive: false
+            },
+
+            e: {
+              $name: 'e',
+              $relation: 'e',
+              $modify: [],
+              $recursive: false,
+              $allRecursive: false
             }
           }
         }
-      });
+      );
     });
 
-    it('should fail gracefully on invalid input', function () {
+    it('should throw with invalid input', () => {
       testParseFail('.');
       testParseFail('..');
       testParseFail('a.');
@@ -371,140 +849,183 @@ describe('RelationExpression', function () {
       testParseFail('a.[.]');
       testParseFail('a.[.b]');
       testParseFail('[a,,b]');
+      // Alias tests
+      testParseFail('a asb');
+      testParseFail('aas b');
+      testParseFail('a asd b');
+      // TODO: enable for v2.0.
+      // testParseFail('[a.b, a.c]');
+      // testParseFail('a.[b.c, b.d]');
     });
-
   });
 
-  describe('#nodesAtPath', function () {
-
-    it('a from a', function () {
-      testPath('a', 'a', [{
-        name: 'a',
-        args: [],
-        numChildren: 0,
-        children: {}
-      }]);
+  describe('#expressionsAtPath', () => {
+    it('a from a', () => {
+      testPath('a', 'a', [
+        {
+          $name: 'a',
+          $relation: 'a',
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false
+        }
+      ]);
     });
 
-    it('a from a.a', function () {
-      testPath('a.b', 'a', [{
-        name: 'a',
-        args: [],
-        numChildren: 1,
-        children: {
+    it('a from a.a', () => {
+      testPath('a.b', 'a', [
+        {
+          $name: 'a',
+          $relation: 'a',
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false,
+
           b: {
-            name: 'b',
-            args: [],
-            numChildren: 0,
-            children: {}
+            $name: 'b',
+            $relation: 'b',
+            $modify: [],
+            $recursive: false,
+            $allRecursive: false
           }
         }
-      }]);
+      ]);
     });
 
-    it('a.b from a', function () {
+    it('a.b from a', () => {
       testPath('a', 'a.b', []);
     });
 
-    it('a.b from a.b', function () {
-      testPath('a.b', 'a.b', [{
-        name: 'b',
-        args: [],
-        numChildren: 0,
-        children: {}
-      }]);
+    it('a.b from a.b', () => {
+      testPath('a.b', 'a.b', [
+        {
+          $name: 'b',
+          $relation: 'b',
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false
+        }
+      ]);
     });
 
-    it('a.b from a.[b, c]', function () {
-      testPath('a.[b, c]', 'a.b', [{
-        name: 'b',
-        args: [],
-        numChildren: 0,
-        children: {}
-      }]);
+    it('a.b from a.[b, c]', () => {
+      testPath('a.[b, c]', 'a.b', [
+        {
+          $name: 'b',
+          $relation: 'b',
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false
+        }
+      ]);
     });
 
-    it('a.[b, c] from a.[b, c]', function () {
-      testPath('a.[b, c]', 'a.[b, c]', [{
-        name: 'b',
-        args: [],
-        numChildren: 0,
-        children: {}
-      }, {
-        name: 'c',
-        args: [],
-        numChildren: 0,
-        children: {}
-      }]);
+    it('a.[b, c] from a.[b, c]', () => {
+      testPath('a.[b, c]', 'a.[b, c]', [
+        {
+          $name: 'b',
+          $relation: 'b',
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false
+        },
+        {
+          $name: 'c',
+          $relation: 'c',
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false
+        }
+      ]);
     });
 
-    it('a.[b, d] from a.[b, c]', function () {
-      testPath('a.[b, c]', 'a.[b, d]', [{
-        name: 'b',
-        args: [],
-        numChildren: 0,
-        children: {}
-      }]);
+    it('a.[b, d] from a.[b, c]', () => {
+      testPath('a.[b, c]', 'a.[b, d]', [
+        {
+          $name: 'b',
+          $relation: 'b',
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false
+        }
+      ]);
     });
 
-    it('[a, b.c.d.[e, f]] from [a, b.[g, c.[d.[e, f], i], h]]', function () {
-      testPath('[a, b.[g, c.[d.[e, f], i], h]]', '[a, b.c.d.[e, f]]', [{
-        name: 'a',
-        args: [],
-        numChildren: 0,
-        children: {}
-      }, {
-        name: 'e',
-        args: [],
-        numChildren: 0,
-        children: {}
-      }, {
-        name: 'f',
-        args: [],
-        numChildren: 0,
-        children: {}
-      }]);
+    it('[a, b.c.d.[e, f]] from [a, b.[g, c.[d.[e, f], i], h]]', () => {
+      testPath('[a, b.[g, c.[d.[e, f], i], h]]', '[a, b.c.d.[e, f]]', [
+        {
+          $name: 'a',
+          $relation: 'a',
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false
+        },
+        {
+          $name: 'e',
+          $relation: 'e',
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false
+        },
+        {
+          $name: 'f',
+          $relation: 'f',
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false
+        }
+      ]);
     });
 
-    it('b.c.d.[e, f] from [a, b.[g, c.[d.[e(a1), f(a2)], i], h]]', function () {
-      testPath('[a, b.[g, c.[d.[e(a1), f(a2)], i], h]]', 'b.c.d.[e, f]', [{
-        name: 'e',
-        args: ['a1'],
-        numChildren: 0,
-        children: {}
-      }, {
-        name: 'f',
-        args: ['a2'],
-        numChildren: 0,
-        children: {}
-      }]);
+    it('b.c.d.[e, f] from [a, b.[g, c.[d.[e(a1), f(a2)], i], h]]', () => {
+      testPath('[a, b.[g, c.[d.[e(a1), f(a2)], i], h]]', 'b.c.d.[e, f]', [
+        {
+          $name: 'e',
+          $relation: 'e',
+          $modify: ['a1'],
+          $recursive: false,
+          $allRecursive: false
+        },
+        {
+          $name: 'f',
+          $relation: 'f',
+          $modify: ['a2'],
+          $recursive: false,
+          $allRecursive: false
+        }
+      ]);
     });
 
-    it('b.c.d from [a, b.[g, c.[d.[e(a1), f(a2)], i], h]]', function () {
-      testPath('[a, b.[g, c.[d.[e(a1), f(a2)], i], h]]', 'b.c.d', [{
-        name: 'd',
-        args: [],
-        numChildren: 2,
-        children: {
+    it('b.c.d from [a, b.[g, c.[d.[e(a1), f(a2)], i], h]]', () => {
+      testPath('[a, b.[g, c.[d.[e(a1), f(a2)], i], h]]', 'b.c.d', [
+        {
+          $name: 'd',
+          $relation: 'd',
+          $modify: [],
+          $recursive: false,
+          $allRecursive: false,
+
           e: {
-            name: 'e',
-            args: ['a1'],
-            numChildren: 0,
-            children: {}
+            $name: 'e',
+            $relation: 'e',
+            $modify: ['a1'],
+            $recursive: false,
+            $allRecursive: false
           },
+
           f: {
-            name: 'f',
-            args: ['a2'],
-            numChildren: 0,
-            children: {}
+            $name: 'f',
+            $relation: 'f',
+            $modify: ['a2'],
+            $recursive: false,
+            $allRecursive: false
           }
         }
-      }]);
+      ]);
     });
-
   });
 
-  describe('#merge', function () {
+  describe('#merge', () => {
     testMerge('a', 'b', '[a, b]');
     testMerge('a.b', 'b', '[a.b, b]');
     testMerge('a', 'b.c', '[a, b.c]');
@@ -515,12 +1036,16 @@ describe('RelationExpression', function () {
     testMerge('a.^4', 'a.^3', 'a.^4');
     testMerge('a.^', 'a.^6', 'a.^');
     testMerge('a.^6', 'a.^', 'a.^');
-    testMerge('a.a', 'a.^', 'a.^')
+    testMerge('a.a', 'a.^', 'a.^');
+    testMerge('a(f)', 'a(g)', 'a(f, g)');
+    testMerge('a.b(f)', 'a.b(g)', 'a.b(f, g)');
   });
 
-  describe('#toString', function () {
+  describe('#toString', () => {
     testToString('a');
     testToString('a.b');
+    testToString('a as b.b as c');
+    testToString('a as b.[b as c, d as e]');
     testToString('a.[b, c]');
     testToString('a.[b, c.d]');
     testToString('[a, b]');
@@ -531,7 +1056,114 @@ describe('RelationExpression', function () {
     testToString('[a.*, b.c.^]');
   });
 
-  describe('#isSubExpression', function () {
+  describe('#toJSON', () => {
+    testToJSON('a', {
+      a: true
+    });
+
+    testToJSON('a.b', {
+      a: {
+        b: true
+      }
+    });
+
+    testToJSON('a as b.b as c', {
+      b: {
+        $relation: 'a',
+        c: {
+          $relation: 'b'
+        }
+      }
+    });
+
+    testToJSON('a as b.[b as c, d as e]', {
+      b: {
+        $relation: 'a',
+        c: {
+          $relation: 'b'
+        },
+        e: {
+          $relation: 'd'
+        }
+      }
+    });
+
+    testToJSON('a.[b, c]', {
+      a: {
+        b: true,
+        c: true
+      }
+    });
+
+    testToJSON('a.[b, c.d]', {
+      a: {
+        b: true,
+        c: {
+          d: true
+        }
+      }
+    });
+
+    testToJSON('[a, b]', {
+      a: true,
+      b: true
+    });
+
+    testToJSON('[a(f1, f2), b]', {
+      a: {
+        $modify: ['f1', 'f2']
+      },
+      b: true
+    });
+
+    testToJSON('[a.[b, c], d.e.f.[g, h.i]]', {
+      a: {
+        b: true,
+        c: true
+      },
+      d: {
+        e: {
+          f: {
+            g: true,
+            h: {
+              i: true
+            }
+          }
+        }
+      }
+    });
+
+    testToJSON('a.*', {
+      a: {
+        $allRecursive: true
+      }
+    });
+
+    testToJSON('a.^', {
+      a: {
+        $recursive: true
+      }
+    });
+
+    testToJSON('a.^3', {
+      a: {
+        $recursive: 3
+      }
+    });
+
+    testToJSON('[a.*, b.c.^]', {
+      a: {
+        $allRecursive: true
+      },
+      b: {
+        c: {
+          $recursive: true
+        }
+      }
+    });
+  });
+
+  describe('#isSubExpression', () => {
     testSubExpression('*', 'a');
     testSubExpression('*', '[a, b]');
     testSubExpression('*', 'a.b');
@@ -615,8 +1247,6 @@ describe('RelationExpression', function () {
     testSubExpression('[a.^, b.[c.^, d]]', 'b.c');
     testSubExpression('[a.^, b.[c.^, d]]', 'b.c.^');
     testSubExpression('[a.^, b.[c.^, d]]', '[a, b]');
-    testSubExpression('[a.^, b.[c.^, d]]', '[b.c, b.d]');
-    testSubExpression('[a.^, b.[c.^, d]]', '[b.c.c.c, b.d]');
     testSubExpression('[a.^, b.[c.^, d]]', '[a.^, b]');
     testSubExpression('[a.^, b.[c.^, d]]', '[a.a, b]');
     testSubExpression('[a.^, b.[c.^, d]]', '[a.a.^, b.c]');
@@ -635,47 +1265,144 @@ describe('RelationExpression', function () {
     testNotSubExpression('a.^3', 'a.^');
     testNotSubExpression('a.^3', 'a.^4');
     testNotSubExpression('a.^3', 'a.a.a.a');
+
+    testSubExpression('[a as aa.[c as cc . d as dd], b as bb]', 'a as aa');
+    testSubExpression('[a as aa.[c as cc . d as dd], b as bb]', '[a as aa, b as bb]');
+    testSubExpression('[a as aa.[c as cc . d as dd], b as bb]', 'a as aa . c as cc');
+    testSubExpression('[a as aa.[c as cc . d as dd], b as bb]', 'a as aa . c as cc . d as dd');
+  });
+
+  describe('#forEachChildExrpression', () => {
+    it('should traverse first level children', () => {
+      const expr = RelationExpression.create('[a, b.c, d]');
+      const items = [];
+
+      expr.forEachChildExpression({ a: 'aa', b: 'bb', d: 'dd' }, (expr, relation) => {
+        items.push({ exprName: expr.$name, relation });
+      });
+
+      expect(items).to.eql([
+        { exprName: 'a', relation: 'aa' },
+        { exprName: 'b', relation: 'bb' },
+        { exprName: 'd', relation: 'dd' }
+      ]);
+    });
+
+    it('should work with recursive expressions', () => {
+      const expr = RelationExpression.create('a.^');
+      const items = [];
+
+      expr.forEachChildExpression({ a: 'aa' }, (expr, relation) => {
+        items.push({ exprName: expr.$name, relation });
+
+        expr.forEachChildExpression({ a: 'aa' }, (expr, relation) => {
+          items.push({ exprName: expr.$name, relation });
+
+          expr.forEachChildExpression({ a: 'aa' }, (expr, relation) => {
+            items.push({ exprName: expr.$name, relation });
+          });
+        });
+      });
+
+      expect(items).to.eql([
+        { exprName: 'a', relation: 'aa' },
+        { exprName: 'a', relation: 'aa' },
+        { exprName: 'a', relation: 'aa' }
+      ]);
+    });
+
+    it('should work with limited recursive expressions', () => {
+      const expr = RelationExpression.create('a.^2');
+      const items = [];
+
+      expr.forEachChildExpression({ a: 'aa' }, (expr, relation) => {
+        items.push({ exprName: expr.$name, relation });
+
+        expr.forEachChildExpression({ a: 'aa' }, (expr, relation) => {
+          items.push({ exprName: expr.$name, relation });
+
+          expr.forEachChildExpression({ a: 'aa' }, (expr, relation) => {
+            items.push({ exprName: expr.$name, relation });
+          });
+        });
+      });
+
+      expect(items).to.eql([{ exprName: 'a', relation: 'aa' }, { exprName: 'a', relation: 'aa' }]);
+    });
+
+    it('should work with all recursive expressions', () => {
+      const expr = RelationExpression.create('a.*');
+      const items = [];
+
+      expr.forEachChildExpression({ a: 'aa' }, (expr, relation) => {
+        items.push({ exprName: expr.$name, relation });
+
+        expr.forEachChildExpression({ b: 'bb', c: 'cc', d: 'dd' }, (expr, relation) => {
+          items.push({ exprName: expr.$name, relation });
+        });
+      });
+
+      expect(items).to.eql([
+        { exprName: 'a', relation: 'aa' },
+        { exprName: 'b', relation: 'bb' },
+        { exprName: 'c', relation: 'cc' },
+        { exprName: 'd', relation: 'dd' }
+      ]);
+    });
   });
 
   function testParse(str, parsed) {
-    expect(RelationExpression.parse(str)).to.eql(parsed);
+    expect(RelationExpression.create(str)).to.eql(parsed);
   }
 
   function testMerge(str1, str2, parsed) {
-    it(str1 + " + " + str2 + " --> " + parsed, function () {
-      expect(RelationExpression.parse(str1).merge(str2).toString()).to.equal(parsed);
-      expect(RelationExpression.parse(str1).merge(RelationExpression.parse(str2)).toString()).to.equal(parsed);
+    it(str1 + ' + ' + str2 + ' --> ' + parsed, () => {
+      expect(
+        RelationExpression.create(str1)
+          .merge(str2)
+          .toString()
+      ).to.equal(parsed);
+      expect(
+        RelationExpression.create(str1)
+          .merge(RelationExpression.create(str2))
+          .toString()
+      ).to.equal(parsed);
     });
   }
 
   function testPath(str, path, expected) {
-    expect(RelationExpression.parse(str)._nodesAtPath(path)).to.eql(expected);
+    expect(RelationExpression.create(str).expressionsAtPath(path)).to.eql(expected);
   }
 
   function testToString(str) {
-    it(str, function () {
-      expect(RelationExpression.parse(str).toString()).to.equal(str);
+    it(str, () => {
+      expect(RelationExpression.create(str).toString()).to.equal(str);
+    });
+  }
+
+  function testToJSON(str, expectedJson) {
+    it(str, () => {
+      const json = RelationExpression.create(str).toJSON();
+      expect(json).to.eql(expectedJson);
+      expect(RelationExpression.create(json).toString()).to.eql(str);
     });
   }
 
   function testParseFail(str) {
-    expect(function () {
-      RelationExpression.parse(str);
-    }).to.throwException(function (err) {
-      expect(err).to.be.a(ValidationError);
-    });
+    expect(() => {
+      RelationExpression.create(str);
+    }).to.throwException();
   }
 
   function testSubExpression(str, subStr) {
-    it('"' + subStr + '" is a sub expression of "' + str + '"', function () {
-      expect(RelationExpression.parse(str).isSubExpression(subStr)).to.equal(true);
+    it('"' + subStr + '" is a sub expression of "' + str + '"', () => {
+      expect(RelationExpression.create(str).isSubExpression(subStr)).to.equal(true);
     });
   }
 
   function testNotSubExpression(str, subStr) {
-    it('"' + subStr + '" is not a sub expression of "' + str + '"', function () {
-      expect(RelationExpression.parse(str).isSubExpression(subStr)).to.equal(false);
+    it('"' + subStr + '" is not a sub expression of "' + str + '"', () => {
+      expect(RelationExpression.create(str).isSubExpression(subStr)).to.equal(false);
     });
   }
-
 });

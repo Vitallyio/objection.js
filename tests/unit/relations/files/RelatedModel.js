@@ -1,10 +1,9 @@
-var Model = require('../../../../').Model;
+const Model = require('../../../../').Model;
 
-function RelatedModel() {
-  Model.apply(this, arguments);
+class RelatedModel extends Model {
+  static get tableName() {
+    return this.name;
+  }
 }
 
-module.exports = Model.extend(RelatedModel);
-
-RelatedModel.tableName = 'RelatedModel';
-
+module.exports = RelatedModel;

@@ -1,34 +1,54 @@
-exports.up = function (knex) {
+exports.up = knex => {
   return knex.schema
-    .createTable('Person', function (table) {
+    .createTable('persons', table => {
       table.increments('id').primary();
-      table.integer('parentId').unsigned().references('id').inTable('Person');
+      table
+        .integer('parentId')
+        .unsigned()
+        .references('id')
+        .inTable('persons');
       table.string('firstName');
       table.string('lastName');
       table.integer('age');
       table.json('address');
+      table.bigInteger('createdAt').notNullable();
+      table.bigInteger('updatedAt').notNullable();
     })
-    .createTable('Movie', function (table) {
+    .createTable('movies', table => {
       table.increments('id').primary();
       table.string('name');
     })
-    .createTable('Animal', function (table) {
+    .createTable('animals', table => {
       table.increments('id').primary();
-      table.integer('ownerId').unsigned().references('id').inTable('Person');
+      table
+        .integer('ownerId')
+        .unsigned()
+        .references('id')
+        .inTable('persons');
       table.string('name');
       table.string('species');
     })
-    .createTable('Person_Movie', function (table) {
+    .createTable('persons_movies', table => {
       table.increments('id').primary();
-      table.integer('personId').unsigned().references('id').inTable('Person').onDelete('CASCADE');
-      table.integer('movieId').unsigned().references('id').inTable('Movie').onDelete('CASCADE');
+      table
+        .integer('personId')
+        .unsigned()
+        .references('id')
+        .inTable('persons')
+        .onDelete('CASCADE');
+      table
+        .integer('movieId')
+        .unsigned()
+        .references('id')
+        .inTable('movies')
+        .onDelete('CASCADE');
     });
 };
 
-exports.down = function (knex) {
+exports.down = knex => {
   return knex.schema
-    .dropTableIfExists('Person_Movie')
-    .dropTableIfExists('Animal')
-    .dropTableIfExists('Movie')
-    .dropTableIfExists('Person');
+    .dropTableIfExists('persons_movies')
+    .dropTableIfExists('animals')
+    .dropTableIfExists('movies')
+    .dropTableIfExists('persons');
 };

@@ -1,9 +1,9 @@
-var Model = require('../../../../').Model;
+const Model = require('../../../../').Model;
 
-function OwnerModel() {
-  Model.apply(this, arguments);
+class OwnerModel extends Model {
+  static get tableName() {
+    return this.name;
+  }
 }
 
-module.exports = Model.extend(OwnerModel);
-
-OwnerModel.tableName = 'OwnerModel';
+module.exports = OwnerModel;

@@ -1,21 +1,26 @@
 {
   "name": "objection-example-express-es6",
-  "version": "0.6.0",
+  "version": "0.9.0",
   "description": "Objection.js express ES6 example",
   "main": "app.js",
   "scripts": {
-    "start": "node --harmony app"
+    "migrate": "knex migrate:latest",
+    "start": "npm run migrate && node app"
+  },
+  "engines": {
+    "node": ">=8.0.0"
   },
   "author": "Sami Koskimäki",
   "license": "MIT",
   "dependencies": {
-    "bluebird": "^3.3.5",
-    "body-parser": "^1.15.1",
-    "express": "^4.13.4",
-    "knex": "^0.10.0",
-    "lodash": "^4.12.0",
-    "morgan": "^1.7.0",
-    "objection": "^0.6.0",
-    "sqlite3": "^3.1.3"
+    "axios": "^0.18.0",
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "express-promise-router": "^3.0.1",
+    "knex": "^0.14.6",
+    "lodash": "^4.17.4",
+    "morgan": "^1.9.0",
+    "objection": "^1.1.8",
+    "sqlite3": "^4.0.0"
   }
 }

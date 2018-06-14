@@ -1,3 +1,1 @@
-module.exports = function InvalidModel() {
-
-};
+module.exports = class InvalidModel {};

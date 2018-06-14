@@ -1,9 +1,9 @@
 module.exports = {
-
   development: {
     client: 'sqlite3',
+    useNullAsDefault: true,
     connection: {
-      filename: './example.db'
+      filename: './build/example.db'
     }
   },
 
@@ -17,5 +17,4 @@ module.exports = {
       max: 10
     }
   }
-
 };

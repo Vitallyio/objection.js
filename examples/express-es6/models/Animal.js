@@ -5,7 +5,7 @@ const Model = require('objection').Model;
 class Animal extends Model {
   // Table name is the only required property.
   static get tableName() {
-    return 'Animal';
+    return 'animals';
   }
 
   // Optional JSON schema. This is not the database schema! Nothing is generated
@@ -17,12 +17,12 @@ class Animal extends Model {
       required: ['name'],
 
       properties: {
-        id: {type: 'integer'},
-        ownerId: {type: ['integer', 'null']},
-        name: {type: 'string', minLength: 1, maxLength: 255},
-        species: {type: 'string', minLength: 1, maxLength: 255}
+        id: { type: 'integer' },
+        ownerId: { type: ['integer', 'null'] },
+        name: { type: 'string', minLength: 1, maxLength: 255 },
+        species: { type: 'string', minLength: 1, maxLength: 255 }
       }
-    }
+    };
   }
 
   // This object defines the relations to other models.
@@ -35,8 +35,8 @@ class Animal extends Model {
         // here to prevent require loops.
         modelClass: __dirname + '/Person',
         join: {
-          from: 'Animal.ownerId',
-          to: 'Person.id'
+          from: 'animals.ownerId',
+          to: 'persons.id'
         }
       }
     };

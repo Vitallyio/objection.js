@@ -1,24 +1,27 @@
-var _ = require('lodash')
-  , knex = require('knex')
-  , expect = require('expect.js')
-  , objection = require('../../../')
-  , Model = objection.Model
-  , Relation = objection.Relation;
+const _ = require('lodash');
+const Knex = require('knex');
+const expect = require('expect.js');
+const objection = require('../../../');
 
-describe('Relation', function () {
-  var OwnerModel = null;
-  var RelatedModel = null;
+const Model = objection.Model;
+const Relation = objection.Relation;
 
-  beforeEach(function () {
+describe('Relation', () => {
+  let OwnerModel = null;
+  let RelatedModel = null;
+  let RelatedModelNamedExport = null;
+
+  beforeEach(() => {
     delete require.cache[__dirname + '/files/OwnerModel.js'];
     delete require.cache[__dirname + '/files/RelatedModel.js'];
 
     OwnerModel = require(__dirname + '/files/OwnerModel');
     RelatedModel = require(__dirname + '/files/RelatedModel');
+    RelatedModelNamedExport = require(__dirname + '/files/RelatedModelNamedExport').RelatedModel;
   });
 
-  it('should accept a Model subclass as modelClass', function () {
-    var relation = new Relation('testRelation', OwnerModel);
+  it('should accept a Model subclass as modelClass', () => {
+    let relation = new Relation('testRelation', OwnerModel);
 
     relation.setMapping({
       relation: Relation,
@@ -31,14 +34,14 @@ describe('Relation', function () {
 
     expect(relation.ownerModelClass).to.equal(OwnerModel);
     expect(relation.relatedModelClass).to.equal(RelatedModel);
-    expect(relation.ownerCol).to.eql(['id']);
-    expect(relation.ownerProp).to.eql(['id']);
-    expect(relation.relatedCol).to.eql(['ownerId']);
-    expect(relation.relatedProp).to.eql(['ownerId']);
+    expect(relation.ownerProp.cols).to.eql(['id']);
+    expect(relation.ownerProp.props).to.eql(['id']);
+    expect(relation.relatedProp.cols).to.eql(['ownerId']);
+    expect(relation.relatedProp.props).to.eql(['ownerId']);
   });
 
-  it('should accept a path to a Model subclass as modelClass', function () {
-    var relation = new Relation('testRelation', OwnerModel);
+  it('should accept a path to a Model subclass as modelClass', () => {
+    let relation = new Relation('testRelation', OwnerModel);
 
     relation.setMapping({
       relation: Relation,
@@ -51,15 +54,15 @@ describe('Relation', function () {
 
     expect(relation.ownerModelClass).to.equal(OwnerModel);
     expect(relation.relatedModelClass).to.equal(RelatedModel);
-    expect(relation.ownerCol).to.eql(['id']);
-    expect(relation.ownerProp).to.eql(['id']);
-    expect(relation.relatedCol).to.eql(['ownerId']);
-    expect(relation.relatedProp).to.eql(['ownerId']);
+    expect(relation.ownerProp.cols).to.eql(['id']);
+    expect(relation.ownerProp.props).to.eql(['id']);
+    expect(relation.relatedProp.cols).to.eql(['ownerId']);
+    expect(relation.relatedProp.props).to.eql(['ownerId']);
   });
 
-  it('should accept a relative path to a Model subclass as modelClass (resolved using Model.modelPaths', function () {
+  it('should accept a relative path to a Model subclass as modelClass (resolved using Model.modelPaths)', () => {
     OwnerModel.modelPaths = [__dirname + '/files/'];
-    var relation = new Relation('testRelation', OwnerModel);
+    let relation = new Relation('testRelation', OwnerModel);
 
     relation.setMapping({
       relation: Relation,
@@ -72,14 +75,34 @@ describe('Relation', function () {
 
     expect(relation.ownerModelClass).to.equal(OwnerModel);
     expect(relation.relatedModelClass).to.equal(RelatedModel);
-    expect(relation.ownerCol).to.eql(['id']);
-    expect(relation.ownerProp).to.eql(['id']);
-    expect(relation.relatedCol).to.eql(['ownerId']);
-    expect(relation.relatedProp).to.eql(['ownerId']);
+    expect(relation.ownerProp.cols).to.eql(['id']);
+    expect(relation.ownerProp.props).to.eql(['id']);
+    expect(relation.relatedProp.cols).to.eql(['ownerId']);
+    expect(relation.relatedProp.props).to.eql(['ownerId']);
   });
 
-  it('should accept a composite key as an array of columns', function () {
-    var relation = new Relation('testRelation', OwnerModel);
+  it('should accept a module with named exports', () => {
+    let relation = new Relation('testRelation', OwnerModel);
+
+    relation.setMapping({
+      relation: Relation,
+      modelClass: __dirname + '/files/RelatedModelNamedExport',
+      join: {
+        from: 'OwnerModel.id',
+        to: 'RelatedModel.ownerId'
+      }
+    });
+
+    expect(relation.ownerModelClass).to.equal(OwnerModel);
+    expect(relation.relatedModelClass).to.equal(RelatedModelNamedExport);
+    expect(relation.ownerProp.cols).to.eql(['id']);
+    expect(relation.ownerProp.props).to.eql(['id']);
+    expect(relation.relatedProp.cols).to.eql(['ownerId']);
+    expect(relation.relatedProp.props).to.eql(['ownerId']);
+  });
+
+  it('should accept a composite key as an array of columns', () => {
+    let relation = new Relation('testRelation', OwnerModel);
 
     relation.setMapping({
       relation: Relation,
@@ -92,16 +115,61 @@ describe('Relation', function () {
 
     expect(relation.ownerModelClass).to.equal(OwnerModel);
     expect(relation.relatedModelClass).to.equal(RelatedModel);
-    expect(relation.ownerCol).to.eql(['name', 'dateOfBirth']);
-    expect(relation.ownerProp).to.eql(['name', 'dateOfBirth']);
-    expect(relation.relatedCol).to.eql(['ownerName', 'ownerDateOfBirth']);
-    expect(relation.relatedProp).to.eql(['ownerName', 'ownerDateOfBirth']);
+    expect(relation.ownerProp.cols).to.eql(['name', 'dateOfBirth']);
+    expect(relation.ownerProp.props).to.eql(['name', 'dateOfBirth']);
+    expect(relation.relatedProp.cols).to.eql(['ownerName', 'ownerDateOfBirth']);
+    expect(relation.relatedProp.props).to.eql(['ownerName', 'ownerDateOfBirth']);
   });
 
-  it('should fail if modelClass is not a subclass of Model', function () {
-    var relation = new Relation('testRelation', OwnerModel);
+  it('should fail if relation property and the relation itself have the same name', () => {
+    let relation = new Relation('foo', OwnerModel);
 
-    expect(function () {
+    expect(() => {
+      relation.setMapping({
+        relation: Relation,
+        modelClass: RelatedModel,
+        join: {
+          from: 'OwnerModel.foo',
+          to: 'RelatedModel.ownerId'
+        }
+      });
+    }).to.throwException(err => {
+      expect(err.message).to.equal(
+        "OwnerModel.relationMappings.foo: join: relation name and join property 'foo' cannot have the same name. If you cannot change one or the other, you can use $parseDatabaseJson and $formatDatabaseJson methods to convert the column name."
+      );
+    });
+  });
+
+  it('should pass through erros thrown from jsonSchema getter', () => {
+    Object.defineProperties(OwnerModel, {
+      jsonSchema: {
+        enumerable: true,
+        get() {
+          throw new Error('whoops, invalid json shchema getter');
+        }
+      }
+    });
+
+    let relation = new Relation('testRelation', OwnerModel);
+
+    expect(() => {
+      relation.setMapping({
+        relation: Relation,
+        modelClass: RelatedModel,
+        join: {
+          from: 'OwnerModel.id',
+          to: 'RelatedModel.ownerId'
+        }
+      });
+    }).to.throwException(err => {
+      expect(err.message).to.equal('whoops, invalid json shchema getter');
+    });
+  });
+
+  it('should fail if modelClass is not a subclass of Model', () => {
+    let relation = new Relation('testRelation', OwnerModel);
+
+    expect(() => {
       relation.setMapping({
         relation: Relation,
         modelClass: function SomeConstructor() {},
@@ -110,15 +178,36 @@ describe('Relation', function () {
           to: 'ownerId'
         }
       });
-    }).to.throwException(function (err) {
-      expect(err.message).to.equal('OwnerModel.relationMappings.testRelation: modelClass is not a subclass of Model or a file path to a module that exports one.');
+    }).to.throwException(err => {
+      expect(err.message).to.equal(
+        'OwnerModel.relationMappings.testRelation: modelClass is not a subclass of Model or a file path to a module that exports one. You may be dealing with a require loop. See the documentation section about require loops.'
+      );
     });
   });
 
-  it('should fail if modelClass is missing', function () {
-    var relation = new Relation('testRelation', OwnerModel);
+  it('should fail if modelClass resolves to a module that exports multiple model classes', () => {
+    let relation = new Relation('testRelation', OwnerModel);
 
-    expect(function () {
+    expect(() => {
+      relation.setMapping({
+        relation: Relation,
+        modelClass: __dirname + '/files/InvalidModelManyNamedModels',
+        join: {
+          from: 'OwnerModel.id',
+          to: 'ownerId'
+        }
+      });
+    }).to.throwException(err => {
+      expect(err.message).to.match(
+        /OwnerModel\.relationMappings\.testRelation: modelClass path .*\/tests\/unit\/relations\/files\/InvalidModelManyNamedModels exports multiple models\. Don't know which one to choose\./
+      );
+    });
+  });
+
+  it('should fail if modelClass is missing', () => {
+    let relation = new Relation('testRelation', OwnerModel);
+
+    expect(() => {
       relation.setMapping({
         relation: Relation,
         modelClass: null,
@@ -127,15 +216,17 @@ describe('Relation', function () {
           to: 'ownerId'
         }
       });
-    }).to.throwException(function (err) {
-      expect(err.message).to.equal('OwnerModel.relationMappings.testRelation: modelClass is not defined');
+    }).to.throwException(err => {
+      expect(err.message).to.equal(
+        'OwnerModel.relationMappings.testRelation: modelClass is not defined'
+      );
     });
   });
 
-  it('should fail if modelClass is an invalid file path', function () {
-    var relation = new Relation('testRelation', OwnerModel);
+  it('should fail if modelClass is an invalid file path', () => {
+    let relation = new Relation('testRelation', OwnerModel);
 
-    expect(function () {
+    expect(() => {
       relation.setMapping({
         relation: Relation,
         modelClass: 'blaa',
@@ -144,15 +235,17 @@ describe('Relation', function () {
           to: 'ownerId'
         }
       });
-    }).to.throwException(function (err) {
-      expect(err.message).to.equal('OwnerModel.relationMappings.testRelation: modelClass: blaa is an invalid file path to a model class');
+    }).to.throwException(err => {
+      expect(err.message).to.equal(
+        'OwnerModel.relationMappings.testRelation: modelClass: blaa is an invalid file path to a model class'
+      );
     });
   });
 
-  it('should fail if modelClass is a file path that points to a non-model', function () {
-    var relation = new Relation('testRelation', OwnerModel);
+  it('should fail if modelClass is a file path that points to a non-model', () => {
+    let relation = new Relation('testRelation', OwnerModel);
 
-    expect(function () {
+    expect(() => {
       relation.setMapping({
         relation: Relation,
         modelClass: __dirname + '/files/InvalidModel',
@@ -161,15 +254,19 @@ describe('Relation', function () {
           to: 'ownerId'
         }
       });
-    }).to.throwException(function (err) {
-      expect(/^OwnerModel\.relationMappings\.testRelation: modelClass: (.+)\/InvalidModel is an invalid file path to a model class$/.test(err.message)).to.equal(true);
+    }).to.throwException(err => {
+      expect(
+        /^OwnerModel\.relationMappings\.testRelation: modelClass: (.+)\/InvalidModel is an invalid file path to a model class$/.test(
+          err.message
+        )
+      ).to.equal(true);
     });
   });
 
-  it('should fail if relation is not defined', function () {
-    var relation = new Relation('testRelation', OwnerModel);
+  it('should fail if relation is not defined', () => {
+    let relation = new Relation('testRelation', OwnerModel);
 
-    expect(function () {
+    expect(() => {
       relation.setMapping({
         modelClass: RelatedModel,
         join: {
@@ -177,49 +274,36 @@ describe('Relation', function () {
           to: 'ownerId'
         }
       });
-    }).to.throwException(function (err) {
-      expect(err.message).to.equal('OwnerModel.relationMappings.testRelation: relation is not defined');
+    }).to.throwException(err => {
+      expect(err.message).to.equal(
+        'OwnerModel.relationMappings.testRelation: relation is not defined'
+      );
     });
   });
 
-  it('should fail if relation is not a Relation subclass', function () {
-    var relation = new Relation('testRelation', OwnerModel);
+  it('should fail if relation is not a Relation subclass', () => {
+    let relation = new Relation('testRelation', OwnerModel);
 
-    expect(function () {
+    expect(() => {
       relation.setMapping({
-        relation: function () {},
+        relation: function() {},
         modelClass: RelatedModel,
         join: {
           from: 'OwnerModel.id',
           to: 'ownerId'
         }
       });
-    }).to.throwException(function (err) {
-      expect(err.message).to.equal('OwnerModel.relationMappings.testRelation: relation is not a subclass of Relation');
+    }).to.throwException(err => {
+      expect(err.message).to.equal(
+        'OwnerModel.relationMappings.testRelation: relation is not a subclass of Relation'
+      );
     });
   });
 
-  it('should fail if OwnerModelClass is not a subclass of Model', function () {
-    var relation = new Relation('testRelation', {});
+  it('should fail if OwnerModelClass is not a subclass of Model', () => {
+    let relation = new Relation('testRelation', {});
 
-    expect(function () {
-      relation.setMapping({
-        relation: Relation,
-        modelClass: RelatedModel,
-        join: {
-          from: 'OwnerModel.id',
-          to: 'ownerId'
-        }
-      });
-    }).to.throwException(function (err) {
-      expect(err.message).to.equal('Relation: Relation\'s owner is not a subclass of Model');
-    });
-  });
-
-  it('join.to should have format ModelName.columnName', function () {
-    var relation = new Relation('testRelation', OwnerModel);
-
-    expect(function () {
+    expect(() => {
       relation.setMapping({
         relation: Relation,
         modelClass: RelatedModel,
@@ -228,15 +312,34 @@ describe('Relation', function () {
           to: 'ownerId'
         }
       });
-    }).to.throwException(function (err) {
-      expect(err.message).to.equal('OwnerModel.relationMappings.testRelation: join.to must have format TableName.columnName. For example "SomeTable.id" or in case of composite key ["SomeTable.a", "SomeTable.b"].');
+    }).to.throwException(err => {
+      expect(err.message).to.equal("Relation: Relation's owner is not a subclass of Model");
     });
   });
 
-  it('join.to should point to either of the related model classes', function () {
-    var relation = new Relation('testRelation', OwnerModel);
+  it('join.to should have format ModelName.columnName', () => {
+    let relation = new Relation('testRelation', OwnerModel);
 
-    expect(function () {
+    expect(() => {
+      relation.setMapping({
+        relation: Relation,
+        modelClass: RelatedModel,
+        join: {
+          from: 'OwnerModel.id',
+          to: 'ownerId'
+        }
+      });
+    }).to.throwException(err => {
+      expect(err.message).to.equal(
+        'OwnerModel.relationMappings.testRelation: join.to must have format TableName.columnName. For example "SomeTable.id" or in case of composite key ["SomeTable.a", "SomeTable.b"].'
+      );
+    });
+  });
+
+  it('join.to should point to either of the related model classes', () => {
+    let relation = new Relation('testRelation', OwnerModel);
+
+    expect(() => {
       relation.setMapping({
         relation: Relation,
         modelClass: RelatedModel,
@@ -245,15 +348,17 @@ describe('Relation', function () {
           to: 'RelatedModel.ownerId'
         }
       });
-    }).to.throwException(function (err) {
-      expect(err.message).to.equal('OwnerModel.relationMappings.testRelation: join: either `from` or `to` must point to the owner model table.');
+    }).to.throwException(err => {
+      expect(err.message).to.equal(
+        "OwnerModel.relationMappings.testRelation: join: either `from` or `to` must point to the owner model table and the other one to the related table. It might be that specified table 'SomeOtherModel' is not correct"
+      );
     });
   });
 
-  it('join.from should have format ModelName.columnName', function () {
-    var relation = new Relation('testRelation', OwnerModel);
+  it('join.from should have format ModelName.columnName', () => {
+    let relation = new Relation('testRelation', OwnerModel);
 
-    expect(function () {
+    expect(() => {
       relation.setMapping({
         relation: Relation,
         modelClass: RelatedModel,
@@ -262,15 +367,17 @@ describe('Relation', function () {
           to: 'RelatedModel.ownerId'
         }
       });
-    }).to.throwException(function (err) {
-      expect(err.message).to.equal('OwnerModel.relationMappings.testRelation: join.from must have format TableName.columnName. For example "SomeTable.id" or in case of composite key ["SomeTable.a", "SomeTable.b"].');
+    }).to.throwException(err => {
+      expect(err.message).to.equal(
+        'OwnerModel.relationMappings.testRelation: join.from must have format TableName.columnName. For example "SomeTable.id" or in case of composite key ["SomeTable.a", "SomeTable.b"].'
+      );
     });
   });
 
-  it('join.from should point to either of the related model classes', function () {
-    var relation = new Relation('testRelation', OwnerModel);
+  it('join.from should point to either of the related model classes', () => {
+    let relation = new Relation('testRelation', OwnerModel);
 
-    expect(function () {
+    expect(() => {
       relation.setMapping({
         relation: Relation,
         modelClass: RelatedModel,
@@ -279,28 +386,32 @@ describe('Relation', function () {
           to: 'SomeOtherModel.ownerId'
         }
       });
-    }).to.throwException(function (err) {
-      expect(err.message).to.equal('OwnerModel.relationMappings.testRelation: join: either `from` or `to` must point to the related model table.');
+    }).to.throwException(err => {
+      expect(err.message).to.equal(
+        "OwnerModel.relationMappings.testRelation: join: either `from` or `to` must point to the owner model table and the other one to the related table. It might be that specified table 'SomeOtherModel' is not correct"
+      );
     });
   });
 
-  it('should fail if join object is missing', function () {
-    var relation = new Relation('testRelation', OwnerModel);
+  it('should fail if join object is missing', () => {
+    let relation = new Relation('testRelation', OwnerModel);
 
-    expect(function () {
+    expect(() => {
       relation.setMapping({
         relation: Relation,
         modelClass: RelatedModel
       });
-    }).to.throwException(function (err) {
-        expect(err.message).to.equal('OwnerModel.relationMappings.testRelation: join must be an object that maps the columns of the related models together. For example: {from: "SomeTable.id", to: "SomeOtherTable.someModelId"}');
-      });
+    }).to.throwException(err => {
+      expect(err.message).to.equal(
+        'OwnerModel.relationMappings.testRelation: join must be an object that maps the columns of the related models together. For example: {from: "SomeTable.id", to: "SomeOtherTable.someModelId"}'
+      );
+    });
   });
 
-  it('should fail if join.from is missing', function () {
-    var relation = new Relation('testRelation', OwnerModel);
+  it('should fail if join.from is missing', () => {
+    let relation = new Relation('testRelation', OwnerModel);
 
-    expect(function () {
+    expect(() => {
       relation.setMapping({
         relation: Relation,
         modelClass: RelatedModel,
@@ -308,15 +419,17 @@ describe('Relation', function () {
           to: 'OwnerModel.id'
         }
       });
-    }).to.throwException(function (err) {
-      expect(err.message).to.equal('OwnerModel.relationMappings.testRelation: join must be an object that maps the columns of the related models together. For example: {from: "SomeTable.id", to: "SomeOtherTable.someModelId"}');
+    }).to.throwException(err => {
+      expect(err.message).to.equal(
+        'OwnerModel.relationMappings.testRelation: join must be an object that maps the columns of the related models together. For example: {from: "SomeTable.id", to: "SomeOtherTable.someModelId"}'
+      );
     });
   });
 
-  it('should fail if join.to is missing', function () {
-    var relation = new Relation('testRelation', OwnerModel);
+  it('should fail if join.to is missing', () => {
+    let relation = new Relation('testRelation', OwnerModel);
 
-    expect(function () {
+    expect(() => {
       relation.setMapping({
         relation: Relation,
         modelClass: RelatedModel,
@@ -324,13 +437,15 @@ describe('Relation', function () {
           from: 'OwnerModel.id'
         }
       });
-    }).to.throwException(function (err) {
-      expect(err.message).to.equal('OwnerModel.relationMappings.testRelation: join must be an object that maps the columns of the related models together. For example: {from: "SomeTable.id", to: "SomeOtherTable.someModelId"}');
+    }).to.throwException(err => {
+      expect(err.message).to.equal(
+        'OwnerModel.relationMappings.testRelation: join must be an object that maps the columns of the related models together. For example: {from: "SomeTable.id", to: "SomeOtherTable.someModelId"}'
+      );
     });
   });
 
-  it('the values of `join.to` and `join.from` can be swapped', function () {
-    var relation = new Relation('testRelation', OwnerModel);
+  it('the values of `join.to` and `join.from` can be swapped', () => {
+    let relation = new Relation('testRelation', OwnerModel);
 
     relation.setMapping({
       relation: Relation,
@@ -343,25 +458,35 @@ describe('Relation', function () {
 
     expect(relation.ownerModelClass).to.equal(OwnerModel);
     expect(relation.relatedModelClass).to.equal(RelatedModel);
-    expect(relation.ownerCol).to.eql(['id']);
-    expect(relation.ownerProp).to.eql(['id']);
-    expect(relation.relatedCol).to.eql(['ownerId']);
-    expect(relation.relatedProp).to.eql(['ownerId']);
+    expect(relation.ownerProp.cols).to.eql(['id']);
+    expect(relation.ownerProp.props).to.eql(['id']);
+    expect(relation.relatedProp.cols).to.eql(['ownerId']);
+    expect(relation.relatedProp.props).to.eql(['ownerId']);
   });
 
-  it('relatedCol and ownerCol should be in database format', function () {
-    var relation = new Relation('testRelation', OwnerModel);
+  it('relatedCol and ownerCol should be in database format', () => {
+    let relation = new Relation('testRelation', OwnerModel);
 
-    OwnerModel.tableName = 'owner_model';
-    OwnerModel.prototype.$parseDatabaseJson = function (json) {
-      return _.mapKeys(json, function (value, key) {
+    Object.defineProperty(OwnerModel, 'tableName', {
+      get() {
+        return 'owner_model';
+      }
+    });
+
+    OwnerModel.prototype.$parseDatabaseJson = json => {
+      return _.mapKeys(json, (value, key) => {
         return _.camelCase(key);
       });
     };
 
-    RelatedModel.tableName = 'related-model';
-    RelatedModel.prototype.$parseDatabaseJson = function (json) {
-      return _.mapKeys(json, function (value, key) {
+    Object.defineProperty(RelatedModel, 'tableName', {
+      get() {
+        return 'related-model';
+      }
+    });
+
+    RelatedModel.prototype.$parseDatabaseJson = json => {
+      return _.mapKeys(json, (value, key) => {
         return _.camelCase(key);
       });
     };
@@ -377,17 +502,26 @@ describe('Relation', function () {
 
     expect(relation.ownerModelClass).to.equal(OwnerModel);
     expect(relation.relatedModelClass).to.equal(RelatedModel);
-    expect(relation.ownerCol).to.eql(['id_col']);
-    expect(relation.ownerProp).to.eql(['idCol']);
-    expect(relation.relatedCol).to.eql(['owner-id']);
-    expect(relation.relatedProp).to.eql(['ownerId']);
+    expect(relation.ownerProp.cols).to.eql(['id_col']);
+    expect(relation.ownerProp.props).to.eql(['idCol']);
+    expect(relation.relatedProp.cols).to.eql(['owner-id']);
+    expect(relation.relatedProp.props).to.eql(['ownerId']);
   });
 
-  it('should allow relations on tables under a schema', function () {
-    var relation = new Relation('testRelation', OwnerModel);
-    
-    OwnerModel.tableName = 'schema1.owner_model';
-    RelatedModel.tableName = 'schema2.related_model';
+  it('should allow relations on tables under a schema', () => {
+    let relation = new Relation('testRelation', OwnerModel);
+
+    Object.defineProperty(OwnerModel, 'tableName', {
+      get() {
+        return 'schema1.owner_model';
+      }
+    });
+
+    Object.defineProperty(RelatedModel, 'tableName', {
+      get() {
+        return 'schema2.related_model';
+      }
+    });
 
     relation.setMapping({
       relation: Relation,
@@ -400,9 +534,25 @@ describe('Relation', function () {
 
     expect(relation.ownerModelClass).to.equal(OwnerModel);
     expect(relation.relatedModelClass).to.equal(RelatedModel);
-    expect(relation.ownerCol).to.eql(['id']);
-    expect(relation.ownerProp).to.eql(['id']);
-    expect(relation.relatedCol).to.eql(['owner_id']);
-    expect(relation.relatedProp).to.eql(['owner_id']);
-  })
+    expect(relation.ownerProp.cols).to.eql(['id']);
+    expect(relation.ownerProp.props).to.eql(['id']);
+    expect(relation.relatedProp.cols).to.eql(['owner_id']);
+    expect(relation.relatedProp.props).to.eql(['owner_id']);
+  });
+
+  it('joinModelClass should return null for relations without join models', () => {
+    let relation = new Relation('testRelation', OwnerModel);
+
+    relation.setMapping({
+      relation: Relation,
+      modelClass: RelatedModel,
+      join: {
+        from: 'RelatedModel.ownerId',
+        to: 'OwnerModel.id'
+      }
+    });
+
+    const knex = Knex({ client: 'pg' });
+    expect(relation.joinModelClass).to.equal(null);
+  });
 });
